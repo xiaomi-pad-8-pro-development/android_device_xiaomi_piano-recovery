@@ -1,0 +1,15 @@
+{
+  "target": "HyperOS 4 / Android 17",
+  "firmware": "OS4.0.0.44.XPYCNXM",
+  "secondary_compatibility": "Android 16; unverified",
+  "manifest_url": "https://gitlab.com/OrangeFox/Manifest.git",
+  "manifest_commit": "c5bc4610ea5ace4b2d1f74278b99574e93adf6f8",
+  "source_branch": "fox_16.0",
+  "project_count": 414,
+  "upstream_files": {
+    "remove-minimal.xml": "9696ee802c95ef3bfbf3db4eff05c9d529e3259826f2fc7f8e0d1d57cc1fe790",
+    "twrp-default.xml": "1b413fd935b56eafd36ea1529a0c0ced14055c1256fa78e69f00aa4fc1ab2671",
+    "fox.xml": "d59896aa140af654dbe4093301f78ab29aca6116fb50abed320e59308c27079a",
+    "default.xml": "09733963e97bef6a3617acdca12f0788196f24e7f679e2e722a8db315c572985"
+  }
+}

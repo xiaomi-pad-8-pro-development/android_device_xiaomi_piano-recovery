@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+     OrangeFox-specific manifest layer.
+
+     Everything OrangeFox adds on top of the TWRP base lives here: the OrangeFox
+     recovery/vendor trees, OrangeFox-patched sources, OrangeFox extras, and the
+     reference device trees. The OrangeFox remote is declared in twrp-default.xml
+     (which includes this file), so it is available to every project below.
+-->
+<manifest>
+
+    <!-- Replace AOSP projects with their OrangeFox counterparts -->
+    <remove-project name="platform/bootable/recovery" />
+    <remove-project name="platform/system/core" />
+    <remove-project name="platform/external/wpa_supplicant_8" />
+
+    <!-- Public OrangeFox recovery (fork of TWRP's bootable/recovery) -->
+    <project path="bootable/recovery" name="bootable/Recovery" remote="OrangeFox" revision="fox_16.0"/>
+
+    <!-- OrangeFox vendor build system -->
+    <project path="vendor/recovery" name="vendor/recovery" remote="OrangeFox" revision="main"/>
+
+    <!-- OrangeFox-patched sources -->
+    <project path="system/core" name="system/core" remote="OrangeFox" revision="fox_16.0"/>
+
+    <!-- Terminal emulator (libvterm) for the recovery's in-UI terminal.
+         OrangeFox fork: upstream neovim/libvterm + a Soong Android.bp. -->
+    <project path="external/libvterm" name="external/libvterm" remote="OrangeFox" revision="fox_16.0"/>
+
+    <project path="external/libarchive" name="external/libarchive" remote="OrangeFox" revision="fox_16.0"/>
+    <project path="external/libfuse3" name="external/libfuse3" remote="OrangeFox" revision="fox_16.0"/>
+    <project path="external/rclone" name="external/rclone" remote="OrangeFox" revision="fox_16.0"/>
+    <project path="prebuilts/fox-go" name="external/fox-go" remote="OrangeFox" revision="fox_16.0"/>
+    <project path="prebuilts/fox-rust" name="external/fox-rust" remote="OrangeFox" revision="fox_16.0"/>
+    <project path="prebuilts/fox-ndk" name="external/fox-ndk" remote="OrangeFox" revision="fox_16.0"/>
+    <project path="external/fox-cargo" name="external/fox-cargo" remote="OrangeFox" revision="fox_16.0"/>
+    <project path="external/zip" name="external/zip" remote="OrangeFox" revision="android-16.0"/>
+
+    <project path="external/wpa_supplicant_8" name="platform/external/wpa_supplicant_8" remote="aosp" revision="android16-s2-release"/>
+    <project path="external/ttyd" name="external/ttyd" remote="OrangeFox" revision="fox_16.0"/>
+    <project path="external/libuv" name="external/libuv" remote="OrangeFox" revision="fox_16.0"/>
+    <project path="external/json-c" name="external/json-c" remote="OrangeFox" revision="fox_16.0"/>
+    <project path="external/libwebsockets" name="external/libwebsockets" remote="OrangeFox" revision="fox_16.0"/>
+
+    <!-- Mondrian device and shared Qualcomm platform configuration -->
+    <project path="device/xiaomi/mondrian" name="device/mondrian" remote="OrangeFox" revision="fox_16.0"/>
+    <project path="device/xiaomi/sm84xx-common" name="device/sm84xx-common" remote="OrangeFox" revision="fox_16.0"/>
+
+</manifest>

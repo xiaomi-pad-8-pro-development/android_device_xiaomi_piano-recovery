@@ -1,0 +1,14 @@
+[
+  {
+    "path": "recovery/root/init.recovery.usb.rc",
+    "sha256": "24c2c85eecab09c4533ce485a64db25141e9eb4ec93c1f0899e51526622d005f",
+    "source_repository": "android_device_xiaomi_piano-twrp",
+    "source_commit": "863c8b908f50f9bb6b1c54b98c75a094f661b3a3"
+  },
+  {
+    "path": "recovery/root/system/etc/task_profiles.json",
+    "sha256": "51bd5ae46dc0931665be713cd9ce96152a48c987037a6c5a6b640dc5518666fa",
+    "source_repository": "android_device_xiaomi_piano-twrp",
+    "source_commit": "863c8b908f50f9bb6b1c54b98c75a094f661b3a3"
+  }
+]

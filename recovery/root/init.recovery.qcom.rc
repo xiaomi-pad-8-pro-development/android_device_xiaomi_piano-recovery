@@ -1,0 +1,12 @@
+on init
+    write /sys/class/backlight/panel0-backlight/brightness 2048
+
+on fs
+    wait /dev/block/platform/soc/1d84000.ufshc 5
+    symlink /dev/block/platform/soc/1d84000.ufshc /dev/block/bootdevice
+
+on early-fs
+    restorecon /system/etc/task_profiles.json
+
+on boot
+    setprop sys.usb.config adb

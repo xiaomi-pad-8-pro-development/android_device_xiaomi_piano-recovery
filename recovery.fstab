@@ -1,0 +1,5 @@
+# Bring-up intentionally exposes no userdata, metadata or raw flash targets.
+# Installed logical filesystems are available read-only for diagnosis.
+system /system erofs ro wait,logical,slotselect
+vendor /vendor erofs ro wait,logical,slotselect
+odm /odm erofs ro wait,logical,slotselect

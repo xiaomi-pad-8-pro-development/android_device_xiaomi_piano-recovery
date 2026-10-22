@@ -1,0 +1,14 @@
+{
+  "target": "HyperOS 4 / Android 17",
+  "firmware": "OS4.0.0.44.XPYCNXM",
+  "secondary_compatibility": "Android 16; unverified",
+  "manifest_url": "https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git",
+  "manifest_commit": "6f074703a0ab31f22518b1a94331b358190237ba",
+  "source_branch": "twrp-16.0",
+  "project_count": 393,
+  "upstream_files": {
+    "remove-minimal.xml": "605e9a4677fe7922a73241f773c4c2d24584740ab5fb086ceb38481ec66e4a44",
+    "twrp-default.xml": "eed5cf17aa5adf881ccfe5473d0cbe82e8bfc3fdde64c01e4dd9b87d127e2e45",
+    "default.xml": "17a94657f51a7ebf86196b0820cbad3ea09ba4f968e7c8f35cbcbc48464240cb"
+  }
+}
