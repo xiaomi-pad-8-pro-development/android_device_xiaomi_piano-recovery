@@ -57,3 +57,10 @@ upload available sync/build logs. These are bring-up artifacts, not releases.
 Hosted-runner disk, RAM and six-hour limits may prevent the first build;
 the job logs are authoritative. OrangeFox uses its own upstream source stack,
 not the old mixed TWRP/OrangeFox overlay. No hardware support is implied.
+
+The initial Actions attempt failed during sync for both recoveries because the
+runner disk filled, before compilation. CI now reclaims unused hosted SDK/tool
+caches, uses shallow partial clones, limits sync concurrency to two and records
+free space every ten seconds. Sync stops below 3 GiB free so diagnostics can
+still upload. This is a storage mitigation; adequate capacity remains to be
+confirmed by the next run.
