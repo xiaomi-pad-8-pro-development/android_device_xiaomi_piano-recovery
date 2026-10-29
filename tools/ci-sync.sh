@@ -17,7 +17,8 @@ mkdir -p .repo/local_manifests
     for p in $big; do echo "  <remove-project path=\"$p\" />"; done
     echo '</manifest>'
 } > .repo/local_manifests/ci-remove.xml
-repo sync -c -j8 --force-sync --no-clone-bundle --no-tags
+repo sync -c -j8 --force-sync --no-clone-bundle --no-tags ||
+    repo sync -c -j4 --force-sync --no-clone-bundle --no-tags
 
 # URL and revision of a project in the full manifest.
 project() {

@@ -60,6 +60,7 @@ jobs:
             manifest=https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git branch=twrp-16.0
           fi
           (cd src && bash ../device-tree/tools/ci-sync.sh $manifest $branch)
+          mkdir -p src/device/xiaomi/piano
           rsync -a --exclude=.git device-tree/ src/device/xiaomi/piano/
           df -h src
 
