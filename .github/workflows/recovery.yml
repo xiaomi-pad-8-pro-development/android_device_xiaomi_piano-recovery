@@ -19,19 +19,12 @@ permissions:
 jobs:
   build:
     name: ${{ matrix.recovery }}
-    if: inputs.recovery == 'both' || inputs.recovery == matrix.recovery
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - recovery: twrp
-            manifest: https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git
-            branch: twrp-16.0
-          - recovery: orangefox
-            manifest: https://gitlab.com/OrangeFox/Manifest.git
-            branch: fox_16.0
+        recovery: ${{ fromJSON(inputs.recovery == 'both' && '["twrp","orangefox"]' || format('["{0}"]', inputs.recovery)) }}
     steps:
       - name: Free disk space
         uses: easimon/maximize-build-space@v10
@@ -65,8 +58,13 @@ jobs:
 
       - name: Sync the recovery source
         run: |
+          if [ "${{ matrix.recovery }}" = orangefox ]; then
+            manifest=https://gitlab.com/OrangeFox/Manifest.git branch=fox_16.0
+          else
+            manifest=https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git branch=twrp-16.0
+          fi
           mkdir src && cd src
-          repo init -u ${{ matrix.manifest }} -b ${{ matrix.branch }} --depth=1 --git-lfs
+          repo init -u $manifest -b $branch --depth=1 --git-lfs
           repo sync -c -j8 --force-sync --no-clone-bundle --no-tags
           rsync -a --exclude=.git ../device-tree/ device/xiaomi/piano/
 
