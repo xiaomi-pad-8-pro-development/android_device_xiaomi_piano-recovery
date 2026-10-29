@@ -29,6 +29,9 @@ jobs:
       - name: Remove preinstalled tools
         uses: rokibhasansagar/slimhub_actions@main
 
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+
       - name: Check out the device tree
         uses: actions/checkout@v4
         with:
@@ -57,12 +60,9 @@ jobs:
             manifest=https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git branch=twrp-16.0
           fi
           cd src
-          repo init -u $manifest -b $branch --depth=1 --git-lfs \
-            --partial-clone --clone-filter=blob:none --no-use-superproject
-          repo sync -c -j8 --force-sync --no-clone-bundle --no-tags --optimized-fetch
+          repo init -u $manifest -b $branch --depth=1
+          repo sync -c -j8 --force-sync --no-clone-bundle --no-tags
           cd ..
-          # The build needs only the checked-out files; drop the git objects.
-          rm -rf src/.repo/project-objects src/.repo/projects
           rsync -a --exclude=.git device-tree/ src/device/xiaomi/piano/
           df -h src
 
