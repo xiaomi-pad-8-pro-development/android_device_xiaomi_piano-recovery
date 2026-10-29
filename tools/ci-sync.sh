@@ -11,14 +11,17 @@ repo init -u "$1" -b "$2" --depth=1
 repo manifest -o /tmp/full.xml
 
 big="prebuilts/clang/host/linux-x86 prebuilts/rust"
+# OrangeFox points these at GitLab repositories that no longer exist; the
+# recovery does not use them.
+case "$1" in *OrangeFox*) big="$big external/libvpx external/libwebm" ;; esac
 mkdir -p .repo/local_manifests
 {
     echo '<manifest>'
     for p in $big; do echo "  <remove-project path=\"$p\" />"; done
     echo '</manifest>'
 } > .repo/local_manifests/ci-remove.xml
-repo sync -c -j8 --force-sync --no-clone-bundle --no-tags ||
-    repo sync -c -j4 --force-sync --no-clone-bundle --no-tags
+repo sync -c -j4 --force-sync --no-clone-bundle --no-tags ||
+    repo sync -c -j2 --force-sync --no-clone-bundle --no-tags
 
 # URL and revision of a project in the full manifest.
 project() {
