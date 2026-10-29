@@ -1,0 +1,65 @@
+# Recovery services for the Xiaomi Pad 8 Pro (piano). The binaries are the
+# stock HyperOS ones; variant-specific files are put in place by piano-setup.sh
+# before any of these start.
+
+service piano.setup /system/bin/sh /system/bin/piano-setup.sh
+    user root
+    group root system
+    disabled
+    oneshot
+    seclabel u:r:recovery:s0
+
+service vendor.qseecomd /vendor/bin/qseecomd
+    user root
+    group root drmrpc
+    socket notify-topology stream 660 system drmrpc
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    disabled
+    seclabel u:r:recovery:s0
+
+service vendor.ssgtzd /vendor/bin/ssgtzd
+    user root
+    group root system wakelock
+    socket ssgtzd stream 0660 system system
+    socket ssgtzd_opener stream 0660 system system
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    disabled
+    seclabel u:r:recovery:s0
+
+service vendor.keymint-qti /vendor/bin/hw/android.hardware.security.keymint-service-qti
+    user root
+    group root drmrpc
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    disabled
+    seclabel u:r:recovery:s0
+
+service vendor.gatekeeper_default /vendor/bin/hw/android.hardware.gatekeeper-service-qti
+    user root
+    group root
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    disabled
+    seclabel u:r:recovery:s0
+
+service odm.weaver /odm/bin/hw/android.hardware.weaver
+    user root
+    group root system drmrpc
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    disabled
+    seclabel u:r:recovery:s0
+
+service vendor.boot-qti /vendor/bin/hw/android.hardware.boot-service.qti
+    user root
+    group root
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    disabled
+    seclabel u:r:recovery:s0
+
+service vendor.batterysecret /vendor/bin/batterysecret
+    user root
+    group system wakelock
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    disabled
+    seclabel u:r:recovery:s0
+
+on init
+    start vendor.boot-qti

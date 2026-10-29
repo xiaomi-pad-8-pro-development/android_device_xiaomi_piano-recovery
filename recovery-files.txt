@@ -1,0 +1,98 @@
+# Files for the Xiaomi Pad 8 Pro (piano) recovery ramdisk.
+#
+# Extracted from stock firmware dumps by tools/extract-files.py:
+#   common and hos4/  HyperOS 4 China OS4.0.5.0.XPYCNXM (Android 17)
+#   hos3/             HyperOS 3 China OS3.0.307.0.WPYCNXM (Android 16)
+#
+# Plain lines go to recovery/root/<path>. Lines under a [hos3] or [hos4]
+# section go to recovery/root/variant/<section>/<path>; variant-script.sh copies
+# the set matching the installed vendor over the common files at boot.
+
+# Secure world, KeyMint, Gatekeeper, boot control
+odm/lib64/vendor.xiaomi.hardware.miauthsecretd-V1-ndk.so
+vendor/bin/hw/android.hardware.boot-service.qti
+vendor/bin/hw/android.hardware.gatekeeper-service-qti
+vendor/bin/hw/android.hardware.security.keymint-service-qti
+vendor/bin/qseecomd
+vendor/lib64/android.hardware.boot-V1-ndk.so
+vendor/lib64/android.hardware.boot@1.0.so
+vendor/lib64/android.hardware.boot@1.1.so
+vendor/lib64/android.hardware.gatekeeper-V1-ndk.so
+vendor/lib64/android.hardware.keymaster@3.0.so
+vendor/lib64/android.hardware.keymaster@4.0.so
+vendor/lib64/android.hardware.keymaster@4.1.so
+vendor/lib64/android.hardware.security.keymint-V3-ndk.so
+vendor/lib64/android.hardware.security.rkp-V3-ndk.so
+vendor/lib64/android.hardware.security.secureclock-V1-ndk.so
+vendor/lib64/android.hardware.security.sharedsecret-V1-ndk.so
+vendor/lib64/android.hardware.weaver-V2-ndk.so
+vendor/lib64/hw/libqtigatekeeper.so
+vendor/lib64/libGPTEE_vendor.so
+vendor/lib64/libQSEEComAPI.so
+vendor/lib64/libboot_control_qti.so
+vendor/lib64/libconfigdb.so
+vendor/lib64/libdiag.so
+vendor/lib64/libdmabufheap.so
+vendor/lib64/libdrmfs.so
+vendor/lib64/libdsi_netctrl.so
+vendor/lib64/libdsutils.so
+vendor/lib64/libgatekeeper.so
+vendor/lib64/libidl.so
+vendor/lib64/libion.so
+vendor/lib64/libkeymaster_messages.so
+vendor/lib64/libkeymasterdeviceutils.so
+vendor/lib64/libkeymasterutils.so
+vendor/lib64/libmdmdetect.so
+vendor/lib64/libminkdescriptor.so
+vendor/lib64/libmisight.so
+vendor/lib64/libnetutils.so
+vendor/lib64/libnicm.so
+vendor/lib64/libqcbor.so
+vendor/lib64/libqdi.so
+vendor/lib64/libqmi.so
+vendor/lib64/libqmi_cci.so
+vendor/lib64/libqmi_client_helper.so
+vendor/lib64/libqmi_client_qmux.so
+vendor/lib64/libqmi_common_so.so
+vendor/lib64/libqmi_csi.so
+vendor/lib64/libqmi_encdec.so
+vendor/lib64/libqmiservices.so
+vendor/lib64/libqrtr.so
+vendor/lib64/libqtikeymint.so
+vendor/lib64/librecovery_updater.so
+vendor/lib64/libseclog.so
+vendor/lib64/libvmmem.so
+vendor/lib64/libxml.so
+vendor/lib64/vendor.xiaomi.hardware.oldcredential-V1-ndk.so
+vendor/etc/vintf/manifest/android.hardware.security.keymint-service-qti.xml
+vendor/etc/vintf/manifest/boot-service.qti.xml
+vendor/etc/ssg/ta_config.json
+vendor/etc/ssg/tz_whitelist.json
+vendor/etc/ueventd.rc
+
+# Touch firmware (the touch modules come from the installed vendor_dlkm)
+odm/firmware/novatek_nt36532_piano_fw_boe.bin
+odm/firmware/novatek_nt36532_piano_fw_csot.bin
+odm/firmware/novatek_nt36532_piano_mp_boe.bin
+odm/firmware/novatek_nt36532_piano_mp_csot.bin
+odm/firmware/piano_nova_boe_thp_config.ini
+odm/firmware/piano_nova_csot_thp_config.ini
+
+[hos3]
+odm/bin/hw/android.hardware.weaver
+odm/lib64/libmi_weaver.so
+vendor/bin/batterysecret
+vendor/bin/ssgtzd
+vendor/lib64/libminksocket_vendor.so
+vendor/lib64/libnicm_dsi.so
+vendor/lib64/libnicm_utils.so
+odm/etc/vintf/manifest/android.hardware.weaver.xml
+
+[hos4]
+odm/bin/hw/android.hardware.weaver
+vendor/bin/batterysecret
+vendor/bin/ssgtzd
+vendor/lib64/libminksocket_vendor.so
+vendor/lib64/libnicm_dsi.so
+vendor/lib64/libnicm_utils.so
+odm/etc/vintf/manifest/android.hardware.weaver.xml

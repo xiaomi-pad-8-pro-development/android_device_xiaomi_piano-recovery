@@ -1,7 +1,11 @@
+#
+# Copyright (C) 2026 The Android Open Source Project
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/twrp_piano.mk \
-    $(LOCAL_DIR)/ofox_piano.mk
+    $(LOCAL_DIR)/twrp_piano.mk
 
 COMMON_LUNCH_CHOICES := \
-    twrp_piano-bp2a-eng \
-    ofox_piano-bp2a-eng
+    twrp_piano-bp2a-eng

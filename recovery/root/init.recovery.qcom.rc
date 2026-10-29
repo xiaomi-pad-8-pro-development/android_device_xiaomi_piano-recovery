@@ -1,12 +1,53 @@
+# Recovery init for the Xiaomi Pad 8 Pro (piano).
+#
+# The secure services live in /vendor/etc/init/piano-recovery.rc. This file
+# prepares the storage and firmware they need, in the order they need it.
+
 on init
     write /sys/class/backlight/panel0-backlight/brightness 2048
+    setprop sys.usb.configfs 1
+    setprop vendor.gatekeeper.is_security_level_spu 0
+    # The ADSP and touch firmware are loaded from the modem image.
+    write /sys/module/firmware_class/parameters/path /vendor/firmware_mnt/image
+
+on property:ro.boot.usbcontroller=*
+    setprop sys.usb.controller ${ro.boot.usbcontroller}
+    wait /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode
+    write /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode peripheral
+    wait /sys/class/udc/${ro.boot.usbcontroller} 1
 
 on fs
     wait /dev/block/platform/soc/1d84000.ufshc 5
     symlink /dev/block/platform/soc/1d84000.ufshc /dev/block/bootdevice
+    chmod 0660 /dev/qseecom
+    chown system drmrpc /dev/qseecom
+    install_keyring
 
-on early-fs
-    restorecon /system/etc/task_profiles.json
+    # qseecomd reads persist through its listeners and crashes when it is not
+    # mounted yet, so mount it read-only before the secure world starts.
+    mkdir /mnt/vendor 0755 root root
+    mkdir /mnt/vendor/persist 0771 root system
+    wait /dev/block/bootdevice/by-name/persist 5
+    mount ext4 /dev/block/bootdevice/by-name/persist /mnt/vendor/persist ro noatime nosuid nodev
+    symlink /mnt/vendor/persist /persist
+
+    # The modem image carries the ADSP firmware and the trusted applications.
+    mkdir /vendor/firmware_mnt 0755 root root
+    wait /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} 5
+    mount vfat /dev/block/bootdevice/by-name/modem${ro.boot.slot_suffix} /vendor/firmware_mnt ro shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337
+    mkdir /firmware 0755 root root
+    mount none /vendor/firmware_mnt /firmware bind
+
+    # Prebuilt files in the recovery ramdisk can lose their executable bit.
+    chmod 0755 /vendor/bin/qseecomd
+    chmod 0755 /vendor/bin/hw/android.hardware.boot-service.qti
+    start vendor.qseecomd
 
 on boot
     setprop sys.usb.config adb
+
+# TWRP has loaded the touch and ADSP modules from the installed vendor_dlkm
+# and mapped the logical partitions: pick the matching secure stack, align
+# the reported patch levels with the installed ROM and start the services.
+on property:twrp.modules.loaded=true
+    start piano.setup

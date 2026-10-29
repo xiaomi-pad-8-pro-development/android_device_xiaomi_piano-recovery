@@ -1,103 +1,123 @@
-name: Piano recovery
+name: Build recovery
+
 on:
   workflow_dispatch:
     inputs:
-      flavor:
+      recovery:
         description: Recovery to build
         type: choice
         default: both
-        options: [both, twrp, ofox]
+        options: [both, twrp, orangefox]
+      release:
+        description: Publish a GitHub release
+        type: boolean
+        default: false
+
 permissions:
-  contents: read
-concurrency:
-  group: recovery-${{ github.ref }}
-  cancel-in-progress: false
+  contents: write
+
 jobs:
   build:
-    name: ${{ matrix.flavor }} / HyperOS 4
+    name: ${{ matrix.recovery }}
+    if: inputs.recovery == 'both' || inputs.recovery == matrix.recovery
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     strategy:
       fail-fast: false
       matrix:
-        flavor: [twrp, ofox]
+        include:
+          - recovery: twrp
+            manifest: https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git
+            branch: twrp-16.0
+          - recovery: orangefox
+            manifest: https://gitlab.com/OrangeFox/Manifest.git
+            branch: fox_16.0
     steps:
-      - uses: actions/checkout@v4
-        if: inputs.flavor == 'both' || inputs.flavor == matrix.flavor
+      - name: Free disk space
+        uses: easimon/maximize-build-space@v10
+        with:
+          root-reserve-mb: 4096
+          swap-size-mb: 8192
+          remove-dotnet: true
+          remove-android: true
+          remove-haskell: true
+          remove-codeql: true
+          remove-docker-images: true
+
+      - name: Check out the device tree
+        uses: actions/checkout@v4
         with:
           path: device-tree
-          persist-credentials: false
-      - name: Prepare hosted runner
-        if: inputs.flavor == 'both' || inputs.flavor == matrix.flavor
+
+      - name: Set up the build host
         run: |
-          # Hosted runner only: reclaim unused preinstalled SDKs.
-          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup \
-            /opt/hostedtoolcache /usr/share/swift /usr/local/share/powershell \
-            /usr/share/miniconda /opt/az /usr/local/julia* /usr/local/share/chromium
-          sudo docker image prune --all --force
-          sudo apt-get clean
           sudo apt-get update
-          sudo apt-get install -y git-core gnupg flex bison build-essential zip curl zlib1g-dev libc6-dev-i386 libncurses-dev x11proto-core-dev libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig python3 openssl cpio lz4 rsync
-          mkdir -p "$HOME/bin"
-          curl --fail --location --retry 3 https://storage.googleapis.com/git-repo-downloads/repo -o "$HOME/bin/repo"
-          chmod +x "$HOME/bin/repo"
-          echo "$HOME/bin" >> "$GITHUB_PATH"
-          df -h .
-      - name: Sync pinned source
-        if: inputs.flavor == 'both' || inputs.flavor == matrix.flavor
-        env:
-          FLAVOR: ${{ matrix.flavor }}
-        shell: bash
+          sudo apt-get install -y bc bison build-essential ccache curl flex g++-multilib \
+            gcc-multilib git git-lfs gnupg gperf lib32ncurses-dev lib32z1-dev liblz4-tool \
+            libncurses-dev libssl-dev libxml2-utils lz4 python3 rsync schedtool squashfs-tools \
+            unzip xsltproc zip zlib1g-dev
+          mkdir -p ~/bin
+          curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o ~/bin/repo
+          chmod +x ~/bin/repo
+          echo ~/bin >> "$GITHUB_PATH"
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@users.noreply.github.com"
+
+      - name: Sync the recovery source
         run: |
-          set -eo pipefail
-          mkdir source
-          cd source
-          metadata=../device-tree/manifests/baseline.json
-          if [[ "$FLAVOR" = ofox ]]; then metadata=../device-tree/manifests/ofox-baseline.json; fi
-          url=$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["manifest_url"])' "$metadata")
-          revision=$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["manifest_commit"])' "$metadata")
-          git config --global user.name "Piano Recovery CI"
-          git config --global user.email "recovery-ci@users.noreply.github.com"
-          repo init -u "$url" -b "$revision" --depth=1 --no-use-superproject --partial-clone --clone-filter=blob:none
-          mkdir -p .repo/local_manifests
-          cp "../device-tree/manifests/$FLAVOR-pins.xml" .repo/local_manifests/piano-pins.xml
-          python3 ../device-tree/tools/ci-sync.py 2>&1 | tee ../sync.log
-          mkdir -p device/xiaomi/piano
+          mkdir src && cd src
+          repo init -u ${{ matrix.manifest }} -b ${{ matrix.branch }} --depth=1 --git-lfs
+          repo sync -c -j8 --force-sync --no-clone-bundle --no-tags
           rsync -a --exclude=.git ../device-tree/ device/xiaomi/piano/
-      - name: Build and verify
-        if: inputs.flavor == 'both' || inputs.flavor == matrix.flavor
-        env:
-          FLAVOR: ${{ matrix.flavor }}
-          PIANO_BUILD_JOBS: '2'
-        shell: bash
+
+      - name: Build
         run: |
-          set -eo pipefail
-          cd source
-          # Ephemeral development key; never uploaded or used as release signing.
-          mkdir -p device/xiaomi/piano/security
-          (umask 077; openssl genrsa -out device/xiaomi/piano/security/recovery_avb.pem 4096)
-          bash device/xiaomi/piano/tools/build-recovery.sh "$FLAVOR"
-          mkdir -p ../artifacts
-          cp out/target/product/piano/recovery.img "../artifacts/piano-$FLAVOR-recovery.img"
-          sha256sum "../artifacts/piano-$FLAVOR-recovery.img" > "../artifacts/piano-$FLAVOR-recovery.img.sha256"
-      - name: Upload verified image
-        if: success() && (inputs.flavor == 'both' || inputs.flavor == matrix.flavor)
+          cd src
+          [ "${{ matrix.recovery }}" = orangefox ] && export PIANO_FOX=1
+          source build/envsetup.sh
+          export ALLOW_MISSING_DEPENDENCIES=true
+          lunch twrp_piano-bp2a-eng
+          m recoveryimage -j$(nproc)
+
+      - name: Name the image
+        id: image
+        run: |
+          date=$(date +%Y%m%d)
+          name=${{ matrix.recovery }}-piano-$date.img
+          [ "${{ matrix.recovery }}" = twrp ] && name=TWRP-16-piano-$date.img
+          [ "${{ matrix.recovery }}" = orangefox ] && name=OrangeFox-R12-piano-$date.img
+          mkdir out
+          cp src/out/target/product/piano/recovery.img out/$name
+          (cd out && sha256sum $name > $name.sha256)
+          echo "date=$date" >> "$GITHUB_OUTPUT"
+
+      - name: Upload the image
         uses: actions/upload-artifact@v4
         with:
-          name: piano-${{ matrix.flavor }}-${{ github.run_number }}
-          path: artifacts/
-          if-no-files-found: error
-          retention-days: 14
-      - name: Upload diagnostics
-        if: always() && (inputs.flavor == 'both' || inputs.flavor == matrix.flavor)
+          name: ${{ matrix.recovery }}-piano
+          path: out/*
+
+      - name: Upload the build log
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: logs-${{ matrix.flavor }}-${{ github.run_number }}
-          path: |
-            sync.log
-            source/sync-storage.json
-            source/recovery-build-logs/
-            source/out/soong/error.log
-            source/out/soong/build.ninja.log
-          if-no-files-found: warn
-          retention-days: 14
+          name: ${{ matrix.recovery }}-log
+          path: src/out/error.log
+          if-no-files-found: ignore
+
+      - name: Publish the release
+        if: inputs.release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ matrix.recovery }}-${{ steps.image.outputs.date }}
+          name: ${{ matrix.recovery == 'twrp' && 'TWRP' || 'OrangeFox' }} for the Xiaomi Pad 8 Pro (${{ steps.image.outputs.date }})
+          files: out/*
+          body: |
+            Recovery for the Xiaomi Pad 8 Pro (piano). Works with HyperOS 3 and 4,
+            Android 16 and 17, and AOSP ROMs built on that firmware.
+
+            Install from the bootloader:
+
+                fastboot flash recovery_a ${{ matrix.recovery == 'twrp' && 'TWRP-16' || 'OrangeFox-R12' }}-piano-${{ steps.image.outputs.date }}.img
+                fastboot flash recovery_b ${{ matrix.recovery == 'twrp' && 'TWRP-16' || 'OrangeFox-R12' }}-piano-${{ steps.image.outputs.date }}.img
+                fastboot reboot recovery
