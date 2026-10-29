@@ -64,18 +64,23 @@ jobs:
             manifest=https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git branch=twrp-16.0
           fi
           (cd src && bash ../device-tree/tools/ci-sync.sh $manifest $branch)
+          # The build needs only the checked-out files: drop the git objects.
+          rm -rf src/.repo/project-objects src/.repo/projects
+          find src -mindepth 2 -maxdepth 6 -name .git -prune -exec rm -rf {} +
           mkdir -p src/device/xiaomi/piano
           rsync -a --exclude=.git device-tree/ src/device/xiaomi/piano/
           df -h src
 
       - name: Build
+        shell: bash
         run: |
+          set +e
           cd src
           [ "${{ matrix.recovery }}" = orangefox ] && export PIANO_FOX=1
           source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
           lunch twrp_piano-bp2a-eng
-          m recoveryimage -j$(nproc)
+          m recoveryimage -j$(nproc) || exit 1
 
       - name: Name the image
         id: image
