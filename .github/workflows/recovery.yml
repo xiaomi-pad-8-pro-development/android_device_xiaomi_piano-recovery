@@ -26,11 +26,14 @@ jobs:
       matrix:
         recovery: ${{ fromJSON(inputs.recovery == 'both' && '["twrp","orangefox"]' || format('["{0}"]', inputs.recovery)) }}
     steps:
+      - name: Remove preinstalled tools
+        uses: rokibhasansagar/slimhub_actions@main
+
       - name: Free disk space
         uses: easimon/maximize-build-space@v10
         with:
-          root-reserve-mb: 4096
-          swap-size-mb: 8192
+          root-reserve-mb: 2048
+          swap-size-mb: 4096
           remove-dotnet: true
           remove-android: true
           remove-haskell: true
@@ -64,8 +67,11 @@ jobs:
             manifest=https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git branch=twrp-16.0
           fi
           mkdir src && cd src
-          repo init -u $manifest -b $branch --depth=1 --git-lfs
-          repo sync -c -j8 --force-sync --no-clone-bundle --no-tags
+          # Partial clone: only the checked-out files are downloaded.
+          repo init -u $manifest -b $branch --depth=1 --git-lfs \
+            --partial-clone --clone-filter=blob:none --no-use-superproject
+          repo sync -c -j8 --force-sync --no-clone-bundle --no-tags --optimized-fetch
+          df -h .
           rsync -a --exclude=.git ../device-tree/ device/xiaomi/piano/
 
       - name: Build
