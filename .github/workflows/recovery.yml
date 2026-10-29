@@ -59,10 +59,7 @@ jobs:
           else
             manifest=https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git branch=twrp-16.0
           fi
-          cd src
-          repo init -u $manifest -b $branch --depth=1
-          repo sync -c -j8 --force-sync --no-clone-bundle --no-tags
-          cd ..
+          (cd src && bash ../device-tree/tools/ci-sync.sh $manifest $branch)
           rsync -a --exclude=.git device-tree/ src/device/xiaomi/piano/
           df -h src
 
