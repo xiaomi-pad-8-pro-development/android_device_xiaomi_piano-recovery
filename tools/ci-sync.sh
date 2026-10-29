@@ -8,7 +8,7 @@
 # repo sync and fetch only the versions the build uses, as sparse checkouts.
 set -euo pipefail
 repo init -u "$1" -b "$2" --depth=1
-repo manifest -r -o /tmp/full.xml
+repo manifest -o /tmp/full.xml
 
 big="prebuilts/clang/host/linux-x86 prebuilts/rust"
 mkdir -p .repo/local_manifests
