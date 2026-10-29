@@ -51,4 +51,4 @@ rust=$(sed -n 's/.*RustDefaultVersion *= *"\([0-9.]*\)".*/\1/p' build/soong/rust
 echo "clang $clang, rust $rust"
 [ -n "$clang" ] && [ -n "$rust" ] || { echo "toolchain versions not found" >&2; exit 1; }
 sparse prebuilts/clang/host/linux-x86 "$clang" clang-stable soong
-sparse prebuilts/rust linux-x86/"$rust" bootstrap
+sparse prebuilts/rust linux-x86/"$rust" bootstrap soong
