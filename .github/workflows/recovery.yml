@@ -39,9 +39,13 @@ jobs:
       - name: Set up zram
         run: |
           # Soong's analysis needs more memory than the runner has.
-          sudo apt-get update
-          sudo apt-get install -y linux-modules-extra-$(uname -r)
-          sudo modprobe zram
+          # The Azure kernels ship zram in linux-modules-extra when they
+          # don't build it in; skip zram if neither has it.
+          if ! sudo modprobe zram; then
+            sudo apt-get update
+            sudo apt-get install -y linux-modules-extra-$(uname -r) && sudo modprobe zram ||
+              { echo "no zram on this runner"; exit 0; }
+          fi
           size=$(( $(awk '/MemTotal/ {print $2}' /proc/meminfo) * 9 / 10 ))K
           dev=$(sudo zramctl --find --size $size --algorithm zstd)
           sudo mkswap $dev
