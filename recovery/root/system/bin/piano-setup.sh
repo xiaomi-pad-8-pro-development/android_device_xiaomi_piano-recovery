@@ -81,7 +81,7 @@ fi
 log_msg "using the ${variant} secure stack"
 # init cannot mount persist under the recovery policy; qseecomd needs it.
 grep -q " /mnt/vendor/persist " /proc/mounts ||
-    mount -t ext4 -o ro,noatime,nosuid,nodev /dev/block/bootdevice/by-name/persist /mnt/vendor/persist
+    mount -t ext4 -o noatime,nosuid,nodev /dev/block/bootdevice/by-name/persist /mnt/vendor/persist
 
 # TWRP's /odm/bin and /odm/etc point into a /vendor/odm that does not exist.
 for d in bin etc; do

@@ -25,11 +25,12 @@ on fs
     install_keyring
 
     # qseecomd reads persist through its listeners and crashes when it is not
-    # mounted yet, so mount it read-only before the secure world starts.
+    # mounted yet, so mount it before the secure world starts. It is writable
+    # because TWRP keeps its settings in persist/TWRP.
     mkdir /mnt/vendor 0755 root root
     mkdir /mnt/vendor/persist 0771 root system
     wait /dev/block/bootdevice/by-name/persist 5
-    mount ext4 /dev/block/bootdevice/by-name/persist /mnt/vendor/persist ro noatime nosuid nodev
+    mount ext4 /dev/block/bootdevice/by-name/persist /mnt/vendor/persist noatime nosuid nodev
     symlink /mnt/vendor/persist /persist
 
     # The modem image carries the ADSP firmware and the trusted applications.
