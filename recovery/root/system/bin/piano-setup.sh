@@ -102,7 +102,13 @@ umount "${MNT}/system" 2>/dev/null
 umount "${MNT}/odm" 2>/dev/null
 umount "${MNT}/vendor" 2>/dev/null
 
-# Charging and the battery readout need the ADSP.
+# Charging and the battery readout need the ADSP. The kernel cannot read
+# its firmware in place (the modem image is 0440 system), so copy it to
+# /lib/firmware, which the kernel always searches.
+for f in /firmware/image/adsp*; do
+    [ -f "${f}" ] || continue
+    cp "${f}" /lib/firmware/ && chmod 0644 "/lib/firmware/${f##*/}"
+done
 if [ -e /sys/kernel/boot_adsp/boot ]; then
     echo 1 > /sys/kernel/boot_adsp/boot
 else
