@@ -1,0 +1,30 @@
+From 430fd0fac6a3fa68068ae6969112f92973e536e1 Mon Sep 17 00:00:00 2001
+From: maade93791 <70593890+maade69@users.noreply.github.com>
+Date: Sun, 21 Jun 2026 20:41:29 +0300
+Subject: [PATCH] update_engine: fix MapAllPartitions skipped in recovery
+ postinstall
+
+recovery now uses snapuserd-backed snapshots, so the same
+MapAllPartitions call is needed there as in the non-recovery path.
+
+Change-Id: Id9cae93e6df93fbb7b7409d6dd2e026c79accbc1
+---
+ payload_consumer/postinstall_runner_action.cc | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/payload_consumer/postinstall_runner_action.cc b/payload_consumer/postinstall_runner_action.cc
+index 2807fa0fa..abd50fc1e 100644
+--- a/payload_consumer/postinstall_runner_action.cc
++++ b/payload_consumer/postinstall_runner_action.cc
+@@ -113,8 +113,9 @@ void PostinstallRunnerAction::PerformAction() {
+   // If we are switching slots, then we are required to MapAllPartitions,
+   // as FinishUpdate() requires all partitions to be mapped.
+   // And switching slots requires FinishUpdate() to be called first
+-  if (dynamic_control->GetVirtualAbFeatureFlag().IsEnabled() &&
+-      !constants::kIsRecovery) {
++  // In recovery, VABC snapshots are also used, so MapAllPartitions is needed
++  // here too.
++  if (dynamic_control->GetVirtualAbFeatureFlag().IsEnabled()) {
+     if (!install_plan_.partitions.empty() ||
+         install_plan_.switch_slot_on_reboot) {
+       if (!dynamic_control->MapAllPartitions()) {
