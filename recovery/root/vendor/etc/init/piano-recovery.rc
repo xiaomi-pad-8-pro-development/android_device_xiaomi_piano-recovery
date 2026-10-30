@@ -17,6 +17,16 @@ service vendor.qseecomd /vendor/bin/qseecomd
     disabled
     seclabel u:r:recovery:s0
 
+# HLOS Mink opener. Weaver's GlobalPlatform client opens its trusted app
+# through it; without it the credential decrypt fails at the Weaver key size.
+service vendor.minkdaemon /vendor/bin/hlosminkdaemon
+    user system
+    group system drmrpc
+    socket hlos_mink_opener stream 0660 system drmrpc
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    disabled
+    seclabel u:r:recovery:s0
+
 service vendor.ssgtzd /vendor/bin/ssgtzd
     user root
     group root system wakelock
@@ -63,3 +73,32 @@ service vendor.batterysecret /vendor/bin/batterysecret
 
 on init
     start vendor.boot-qti
+
+# Host touch processing: the panel sends raw frames that touch_report turns
+# into input events. The Novatek modules come from the installed vendor_boot.
+service vendor.touch_report /vendor/bin/touch_report
+    user root
+    group root uhid input
+    capabilities SYS_NICE
+    ioprio rt 4
+    setenv LD_LIBRARY_PATH /vendor/lib64:/odm/lib64:/system/lib64
+    disabled
+    seclabel u:r:recovery:s0
+
+on post-fs
+    chmod 0755 /vendor/bin/touch_report
+    start vendor.touch_report
+
+# QWES, for the Weaver-backed synthetic password. It needs the
+# metadata-decrypted /data, so it starts once the userdata mapper exists.
+service vendor.qwesd /vendor/bin/qwesd
+    user system
+    group system inet
+    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    disabled
+    seclabel u:r:recovery:s0
+
+on property:ro.crypto.fs_crypto_blkdev=*
+    mkdir /data/vendor/qwes 0755 system system
+    chmod 0755 /vendor/bin/qwesd
+    start vendor.qwesd

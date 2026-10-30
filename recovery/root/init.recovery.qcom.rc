@@ -7,7 +7,8 @@ on init
     write /sys/class/backlight/panel0-backlight/brightness 2048
     setprop sys.usb.configfs 1
     setprop vendor.gatekeeper.is_security_level_spu 0
-    # The ADSP and touch firmware are loaded from the modem image.
+    # The ADSP firmware is loaded from the modem image. The touch firmware is
+    # in /lib/firmware, which the kernel searches from first stage on.
     write /sys/module/firmware_class/parameters/path /vendor/firmware_mnt/image
 
 on property:ro.boot.usbcontroller=*
@@ -41,7 +42,9 @@ on fs
     # Prebuilt files in the recovery ramdisk can lose their executable bit.
     chmod 0755 /vendor/bin/qseecomd
     chmod 0755 /vendor/bin/hw/android.hardware.boot-service.qti
+    chmod 0755 /vendor/bin/hlosminkdaemon
     start vendor.qseecomd
+    start vendor.minkdaemon
 
 on boot
     setprop sys.usb.config adb

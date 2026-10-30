@@ -13,7 +13,11 @@ odm/lib64/vendor.xiaomi.hardware.miauthsecretd-V1-ndk.so
 vendor/bin/hw/android.hardware.boot-service.qti
 vendor/bin/hw/android.hardware.gatekeeper-service-qti
 vendor/bin/hw/android.hardware.security.keymint-service-qti
+vendor/bin/hlosminkdaemon
 vendor/bin/qseecomd
+vendor/bin/qwesd
+vendor/etc/seccomp_policy/qwesd@2.0.policy
+vendor/etc/ssg/ta_config.json
 vendor/lib64/android.hardware.boot-V1-ndk.so
 vendor/lib64/android.hardware.boot@1.0.so
 vendor/lib64/android.hardware.boot@1.1.so
@@ -70,6 +74,34 @@ vendor/etc/ssg/ta_config.json
 vendor/etc/ssg/tz_whitelist.json
 vendor/etc/ueventd.rc
 
+
+# Host touch processing
+odm/lib64/libtensorflowlite_touch_c.so
+odm/lib64/libtouchreport.so
+odm/lib64/libtouchreport_alg.so
+odm/lib64/libtouchreport_hal.so
+odm/lib64/libtouchreport_sensor.so
+vendor/bin/touch_report
+
+# qseecomd listeners
+vendor/lib64/android.hardware.common-V2-ndk.so
+vendor/lib64/libGPMTEEC_vendor.so
+vendor/lib64/libGPreqcancel.so
+vendor/lib64/libavservices_minijail.so
+vendor/lib64/libcurl.so
+vendor/lib64/libminijail.so
+vendor/lib64/libtaautoload.so
+vendor/lib64/libGPreqcancel_svc.so
+vendor/lib64/libdrm.so
+vendor/lib64/libdrmtime.so
+vendor/lib64/libgpt.so
+vendor/lib64/libops.so
+vendor/lib64/libqisl.so
+vendor/lib64/librpmb.so
+vendor/lib64/libspl.so
+vendor/lib64/libssd.so
+vendor/lib64/libtime_genoff.so
+vendor/lib64/vendor.qti.hardware.display.config-V7-ndk.so
 # Touch firmware (the touch modules come from the installed vendor_dlkm)
 odm/firmware/novatek_nt36532_piano_fw_boe.bin
 odm/firmware/novatek_nt36532_piano_fw_csot.bin
