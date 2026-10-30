@@ -34,7 +34,7 @@ jobs:
         with:
           # repo, git and the runner itself still write to the root disk.
           root-reserve-mb: 8192
-          swap-size-mb: 10240
+          swap-size-mb: 24576
 
       - name: Set up zram
         run: |
@@ -96,8 +96,11 @@ jobs:
           [ "${{ matrix.recovery }}" = orangefox ] && export PIANO_FOX=1
           source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
+          # Keep Soong's Go analysis inside the runner's memory: collect
+          # garbage early and build one job at a time.
+          export GOGC=50 GOMEMLIMIT=10GiB
           lunch twrp_piano-bp2a-eng
-          m recoveryimage -j3 || exit 1
+          m recoveryimage -j1 || exit 1
 
       - name: Name the image
         id: image
