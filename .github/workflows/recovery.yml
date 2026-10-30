@@ -6,8 +6,8 @@ on:
       recovery:
         description: Recovery to build
         type: choice
-        default: both
-        options: [both, twrp, orangefox]
+        default: all
+        options: [all, twrp, yarp, orangefox]
       release:
         description: Publish a GitHub release
         type: boolean
@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        recovery: ${{ fromJSON(inputs.recovery == 'both' && '["twrp","orangefox"]' || format('["{0}"]', inputs.recovery)) }}
+        recovery: ${{ fromJSON(inputs.recovery == 'all' && '["twrp","yarp","orangefox"]' || format('["{0}"]', inputs.recovery)) }}
     steps:
       - name: Remove preinstalled tools
         uses: rokibhasansagar/slimhub_actions@main
@@ -80,6 +80,7 @@ jobs:
           else
             manifest=https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git branch=twrp-16.0
           fi
+          [ "${{ matrix.recovery }}" = yarp ] && export PIANO_YARP=1
           (cd src && bash ../device-tree/tools/ci-sync.sh $manifest $branch)
           # The build needs only the checked-out files: drop the git objects.
           rm -rf src/.repo/project-objects src/.repo/projects
@@ -108,6 +109,7 @@ jobs:
           date=$(date +%Y%m%d)
           name=${{ matrix.recovery }}-piano-$date.img
           [ "${{ matrix.recovery }}" = twrp ] && name=TWRP-16-piano-$date.img
+          [ "${{ matrix.recovery }}" = yarp ] && name=YARP-16-piano-$date.img
           [ "${{ matrix.recovery }}" = orangefox ] && name=OrangeFox-R12-piano-$date.img
           mkdir out
           cp src/out/target/product/piano/recovery.img out/$name

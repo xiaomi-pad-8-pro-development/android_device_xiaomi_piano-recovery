@@ -8,16 +8,23 @@
 # repo sync and fetch only the versions the build uses, as sparse checkouts.
 set -euo pipefail
 repo init -u "$1" -b "$2" --depth=1
+# A rerun must read the full manifest, not the one with our removals.
+rm -f .repo/local_manifests/ci-remove.xml
 repo manifest -o /tmp/full.xml
 
 big="prebuilts/clang/host/linux-x86 prebuilts/rust"
 # OrangeFox points these at GitLab repositories that no longer exist; the
 # recovery does not use them.
 case "$1" in *OrangeFox*) big="$big external/libvpx external/libwebm" ;; esac
+# twrp-16.0 replaced the classic TWRP UI with GUI2 ("YARP") on 2026-10-24;
+# stay on the last classic commit unless PIANO_YARP=1 asks for GUI2.
+pin=
+case "$1" in *TWRP-Test*) [ -n "${PIANO_YARP:-}" ] || pin=0315dbb53c47a0532546b7056f6af71b4dc0ddab ;; esac
 mkdir -p .repo/local_manifests
 {
     echo '<manifest>'
     for p in $big; do echo "  <remove-project path=\"$p\" />"; done
+    [ -n "$pin" ] && echo "  <extend-project name=\"android_bootable_recovery\" revision=\"$pin\" />"
     echo '</manifest>'
 } > .repo/local_manifests/ci-remove.xml
 repo sync -c -j4 --force-sync --no-clone-bundle --no-tags ||
@@ -50,8 +57,9 @@ sparse() {
 }
 
 clang=$(sed -n 's/.*ClangDefaultVersion *= *"\(clang-r[0-9a-z]*\)".*/\1/p' build/soong/cc/config/global.go)
+bindgen=$(sed -n 's/.*bindgenClangVersion *= *"\(clang-r[0-9a-z]*\)".*/\1/p' build/soong/rust/bindgen.go)
 rust=$(sed -n 's/.*RustDefaultVersion *= *"\([0-9.]*\)".*/\1/p' build/soong/rust/config/global.go)
-echo "clang $clang, rust $rust"
+echo "clang $clang $bindgen, rust $rust"
 [ -n "$clang" ] && [ -n "$rust" ] || { echo "toolchain versions not found" >&2; exit 1; }
-sparse prebuilts/clang/host/linux-x86 "$clang" clang-stable soong
+sparse prebuilts/clang/host/linux-x86 "$clang" $bindgen clang-stable soong
 sparse prebuilts/rust linux-x86/"$rust" bootstrap soong
