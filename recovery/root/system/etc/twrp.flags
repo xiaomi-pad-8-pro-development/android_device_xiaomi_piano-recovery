@@ -1,1 +1,31 @@
-/storage/usbotg       vfat   /devices/platform/soc/a600000.ssusb/*.dwc3/xhci-hcd.*.auto*   flags=display="USB OTG";storage;wipeingui;removable
+# TWRP names, backup and flash options for the piano partitions.
+
+/system_ext     auto    system_ext                                  flags=display="System_EXT"
+/system_dlkm    auto    system_dlkm                                 flags=display="System_DLKM"
+/vendor_dlkm    auto    vendor_dlkm                                 flags=display="Vendor_DLKM"
+
+/metadata       f2fs    /dev/block/bootdevice/by-name/metadata      flags=display="Metadata";backup=1;wrappedkey
+/misc           emmc    /dev/block/bootdevice/by-name/misc          flags=display="Misc";backup=1;flashimg=1
+
+/boot           emmc    /dev/block/bootdevice/by-name/boot          flags=display="Boot";backup=1;slotselect;flashimg=1
+/init_boot      emmc    /dev/block/bootdevice/by-name/init_boot     flags=display="Init Boot";backup=1;slotselect;flashimg=1
+/vendor_boot    emmc    /dev/block/bootdevice/by-name/vendor_boot   flags=display="Vendor Boot";backup=1;slotselect;flashimg=1
+/dtbo           emmc    /dev/block/bootdevice/by-name/dtbo          flags=display="DTBO";backup=1;slotselect;flashimg=1
+/recovery       emmc    /dev/block/bootdevice/by-name/recovery      flags=display="Recovery";backup=1;slotselect;flashimg=1
+/vbmeta         emmc    /dev/block/bootdevice/by-name/vbmeta        flags=display="VBMeta";backup=1;slotselect;flashimg=1
+/vbmeta_system  emmc    /dev/block/bootdevice/by-name/vbmeta_system flags=display="VBMeta System";backup=1;slotselect;flashimg=1
+
+# Mounted read-only at boot for the secure stack; the image entry backs it up.
+/persist_image  emmc    /dev/block/bootdevice/by-name/persist       flags=display="Persist";backup=1;flashimg=1
+
+/modem_image    emmc    /dev/block/bootdevice/by-name/modem         flags=display="Modem";backup=1;slotselect;flashimg=1
+/bluetooth      emmc    /dev/block/bootdevice/by-name/bluetooth     flags=backup=1;slotselect;flashimg=1;subpartitionof=/modem_image
+/dsp            emmc    /dev/block/bootdevice/by-name/dsp           flags=backup=1;slotselect;flashimg=1;subpartitionof=/modem_image
+
+# IMEI and network calibration.
+/efs1           emmc    /dev/block/bootdevice/by-name/modemst1      flags=display="EFS";backup=1
+/efs2           emmc    /dev/block/bootdevice/by-name/modemst2      flags=backup=1;subpartitionof=/efs1
+/efsc           emmc    /dev/block/bootdevice/by-name/fsc           flags=backup=1;subpartitionof=/efs1
+/efsg           emmc    /dev/block/bootdevice/by-name/fsg           flags=backup=1;subpartitionof=/efs1
+
+/storage/usbotg vfat    /devices/platform/soc/a600000.ssusb/*.dwc3/xhci-hcd.*.auto*   flags=display="USB OTG";storage;wipeingui;removable
