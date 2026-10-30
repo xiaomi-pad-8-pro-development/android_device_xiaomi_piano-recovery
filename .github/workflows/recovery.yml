@@ -36,6 +36,15 @@ jobs:
           root-reserve-mb: 8192
           swap-size-mb: 10240
 
+      - name: Set up zram
+        run: |
+          # Soong's analysis needs more memory than the runner has.
+          sudo apt-get install -y linux-modules-extra-$(uname -r) zram-tools
+          sudo modprobe zram
+          sudo sed -i 's/^#PERCENT=50/PERCENT=90/; s/^#PRIORITY=100/PRIORITY=1000/' /etc/default/zramswap
+          sudo systemctl restart zramswap
+          zramctl
+
       - name: Check out the device tree
         uses: actions/checkout@v4
         with:
