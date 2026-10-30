@@ -39,11 +39,15 @@ jobs:
       - name: Set up zram
         run: |
           # Soong's analysis needs more memory than the runner has.
-          sudo apt-get install -y linux-modules-extra-$(uname -r) zram-tools
+          sudo apt-get update
+          sudo apt-get install -y linux-modules-extra-$(uname -r)
           sudo modprobe zram
-          sudo sed -i 's/^#PERCENT=50/PERCENT=90/; s/^#PRIORITY=100/PRIORITY=1000/' /etc/default/zramswap
-          sudo systemctl restart zramswap
-          zramctl
+          size=$(( $(awk '/MemTotal/ {print $2}' /proc/meminfo) * 9 / 10 ))K
+          dev=$(sudo zramctl --find --size $size --algorithm zstd)
+          sudo mkswap $dev
+          sudo swapon -p 1000 $dev
+          swapon --show
+          free -h
 
       - name: Check out the device tree
         uses: actions/checkout@v4
