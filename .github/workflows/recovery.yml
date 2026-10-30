@@ -48,7 +48,7 @@ jobs:
         with:
           # repo, git and the runner itself still write to the root disk.
           root-reserve-mb: 8192
-          swap-size-mb: 14336
+          swap-size-mb: ${{ matrix.recovery == 'orangefox' && 6144 || 14336 }}
 
       - name: Set up zram
         run: |
