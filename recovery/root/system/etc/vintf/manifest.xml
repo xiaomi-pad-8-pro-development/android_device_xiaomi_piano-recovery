@@ -1,0 +1,52 @@
+<!--
+    Recovery device manifest.
+
+    In recovery, servicemanager reads only /system/etc/vintf/manifest.xml and
+    its fragments; the vendor and odm manifests are ignored, so every HAL the
+    recovery starts is declared here. Without it, addService() fails and the
+    HALs abort, which loops the device into recovery.
+
+    The Xiaomi services exist only on HyperOS 4; declaring them on HyperOS 3
+    is harmless.
+-->
+<manifest version="8.0" type="device">
+    <hal format="aidl">
+        <name>android.hardware.boot</name>
+        <fqname>IBootControl/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>android.hardware.gatekeeper</name>
+        <fqname>IGatekeeper/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>android.hardware.security.keymint</name>
+        <version>3</version>
+        <fqname>IKeyMintDevice/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>android.hardware.security.keymint</name>
+        <version>3</version>
+        <fqname>IRemotelyProvisionedComponent/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>android.hardware.security.secureclock</name>
+        <fqname>ISecureClock/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>android.hardware.security.sharedsecret</name>
+        <fqname>ISharedSecret/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>android.hardware.weaver</name>
+        <version>2</version>
+        <fqname>IWeaver/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>vendor.xiaomi.hardware.miauthsecretd</name>
+        <fqname>ICpaceService/default</fqname>
+    </hal>
+    <hal format="aidl">
+        <name>vendor.xiaomi.hardware.oldcredential</name>
+        <fqname>IOldCredentialService/default</fqname>
+    </hal>
+</manifest>

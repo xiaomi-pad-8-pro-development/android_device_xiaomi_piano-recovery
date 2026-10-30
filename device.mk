@@ -15,3 +15,6 @@ $(call inherit-product, vendor/twrp/config/common.mk)
 PRODUCT_SHIPPING_API_LEVEL := 35
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 PRODUCT_SOONG_NAMESPACES += $(LOCAL_PATH)
+
+# Ramdisk-only recovery: no kernel to check against the VINTF requirements.
+PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false
