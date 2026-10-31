@@ -138,6 +138,7 @@ TW_BACKUP_EXCLUSIONS := /data/fonts,/data/adb/ksu,/data/adb/ap
 # Release numbers, one per recovery. Raise the one you release.
 ifeq ($(PIANO_FOX),1)
 FOX_MAINTAINER_PATCH_VERSION := 1
+FOX_VARIANT := ALXP
 TW_DEVICE_VERSION := $(FOX_MAINTAINER_PATCH_VERSION)(ALXP)
 else ifeq ($(PIANO_YARP),1)
 TW_DEVICE_VERSION := 0(ALXP)
