@@ -83,6 +83,13 @@ log_msg "using the ${variant} secure stack"
 grep -q " /mnt/vendor/persist " /proc/mounts ||
     mount -t ext4 -o noatime,nosuid,nodev /dev/block/bootdevice/by-name/persist /mnt/vendor/persist
 
+# OrangeFox briefly mounts the installed odm on /odm to read its properties;
+# files put there in the meantime vanish when it unmounts.
+i=0
+while grep -q " /odm " /proc/mounts && [ "${i}" -lt 30 ]; do
+    sleep 1
+    i=$((i + 1))
+done
 # TWRP's /odm/bin and /odm/etc point into a /vendor/odm that does not exist.
 for d in bin etc; do
     [ -L /odm/${d} ] && rm /odm/${d} && mkdir /odm/${d}
