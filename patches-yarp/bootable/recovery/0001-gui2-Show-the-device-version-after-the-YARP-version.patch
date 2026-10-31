@@ -1,4 +1,4 @@
-From 91d054691e9dbc22efa0150425e03a5d4d71101d Mon Sep 17 00:00:00 2001
+From 8a4030db5daf0e31737ea58ebc764af37a21af8a Mon Sep 17 00:00:00 2001
 From: MUHAMMAD ALIF DANIEL BIN MOHD HAIRUL HEZZELIN
  <alifdaniel.personalspace@gmail.com>
 Date: Sat, 31 Oct 2026 13:31:19 +0800
@@ -8,9 +8,23 @@ The splash and status bar show only the YARP version, so builds of the
 same YARP release cannot be told apart. Append TW_DEVICE_VERSION, as the
 classic TWRP version string does.
 ---
+ gui2/Android.bp              | 2 +-
  gui2/shell/page_scaffold.cpp | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
+diff --git a/gui2/Android.bp b/gui2/Android.bp
+index cd03430..80e99cf 100644
+--- a/gui2/Android.bp
++++ b/gui2/Android.bp
+@@ -27,7 +27,7 @@ genrule {
+ cc_library_shared {
+     name: "libgui2",
+     recovery: true,
+-    defaults: ["twrp_defaults", "gui2_resources_defaults"],
++    defaults: ["twrp_defaults", "twrp_cflags_defaults", "gui2_resources_defaults"],
+     cflags: [
+         "-DLV_CONF_INCLUDE_SIMPLE",
+         "-DLV_LVGL_H_INCLUDE_SIMPLE",
 diff --git a/gui2/shell/page_scaffold.cpp b/gui2/shell/page_scaffold.cpp
 index 55710f8..0fd6f54 100644
 --- a/gui2/shell/page_scaffold.cpp
