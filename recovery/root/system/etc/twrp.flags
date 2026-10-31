@@ -15,7 +15,8 @@
 /vbmeta         emmc    /dev/block/bootdevice/by-name/vbmeta        flags=display="VBMeta";backup=1;slotselect;flashimg=1
 /vbmeta_system  emmc    /dev/block/bootdevice/by-name/vbmeta_system flags=display="VBMeta System";backup=1;slotselect;flashimg=1
 
-# Mounted read-only at boot for the secure stack; the image entry backs it up.
+# Mounted at boot for the secure stack and TWRP settings; the image entry backs it up.
+/mnt/vendor/persist ext4   /dev/block/bootdevice/by-name/persist       flags=display="Persist"
 /persist_image  emmc    /dev/block/bootdevice/by-name/persist       flags=display="Persist";backup=1;flashimg=1
 
 /modem_image    emmc    /dev/block/bootdevice/by-name/modem         flags=display="Modem";backup=1;slotselect;flashimg=1
