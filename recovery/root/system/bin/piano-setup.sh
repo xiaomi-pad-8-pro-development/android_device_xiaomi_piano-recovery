@@ -83,10 +83,11 @@ log_msg "using the ${variant} secure stack"
 grep -q " /mnt/vendor/persist " /proc/mounts ||
     mount -t ext4 -o noatime,nosuid,nodev /dev/block/bootdevice/by-name/persist /mnt/vendor/persist
 
-# OrangeFox briefly mounts the installed odm on /odm to read its properties;
-# files put there in the meantime vanish when it unmounts.
+# OrangeFox briefly mounts the installed vendor and odm over /vendor and /odm
+# to read their properties; files put there in the meantime vanish when it
+# unmounts.
 i=0
-while grep -q " /odm " /proc/mounts && [ "${i}" -lt 30 ]; do
+while grep -qE " /(vendor|odm) " /proc/mounts && [ "${i}" -lt 30 ]; do
     sleep 1
     i=$((i + 1))
 done
