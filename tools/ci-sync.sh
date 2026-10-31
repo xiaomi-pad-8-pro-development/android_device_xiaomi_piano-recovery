@@ -64,11 +64,4 @@ echo "clang $clang $bindgen, rust $rust"
 sparse prebuilts/clang/host/linux-x86 "$clang" $bindgen clang-stable soong
 sparse prebuilts/rust linux-x86/"$rust" bootstrap soong
 
-# Recovery source fixes: patches/<project path>/*.patch. Skip ones that are
-# already applied, so a rerun is harmless.
-patches=$(cd "$(dirname "$0")/../patches" && pwd)
-find "$patches" -name '*.patch' | sort | while read -r f; do
-    p=$(dirname "${f#"$patches"/}")
-    git -C "$p" apply --reverse --check "$f" 2>/dev/null && continue
-    git -C "$p" apply "$f" || { echo "cannot apply ${f#"$patches"/}" >&2; exit 1; }
-done
+"$(dirname "$0")/apply-patches.sh"

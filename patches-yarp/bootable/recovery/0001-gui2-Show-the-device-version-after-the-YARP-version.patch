@@ -1,0 +1,30 @@
+From 91d054691e9dbc22efa0150425e03a5d4d71101d Mon Sep 17 00:00:00 2001
+From: MUHAMMAD ALIF DANIEL BIN MOHD HAIRUL HEZZELIN
+ <alifdaniel.personalspace@gmail.com>
+Date: Sat, 31 Oct 2026 13:31:19 +0800
+Subject: [PATCH] gui2: Show the device version after the YARP version
+
+The splash and status bar show only the YARP version, so builds of the
+same YARP release cannot be told apart. Append TW_DEVICE_VERSION, as the
+classic TWRP version string does.
+---
+ gui2/shell/page_scaffold.cpp | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/gui2/shell/page_scaffold.cpp b/gui2/shell/page_scaffold.cpp
+index 55710f8..0fd6f54 100644
+--- a/gui2/shell/page_scaffold.cpp
++++ b/gui2/shell/page_scaffold.cpp
+@@ -8,7 +8,8 @@ namespace gui2_shell {
+ 
+ namespace {
+ 
+-constexpr const char* kVersionText = "4.0.0";
++// TW_DEVICE_VERSION is "-" plus the device tree's release number.
++constexpr const char* kVersionText = "4.0.0" TW_DEVICE_VERSION;
+ 
+ }  // namespace
+ 
+-- 
+2.55.0
+
