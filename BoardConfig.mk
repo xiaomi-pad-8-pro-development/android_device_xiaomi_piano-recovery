@@ -135,8 +135,11 @@ TW_EXCLUDE_APEX := true
 TW_SKIP_ADDITIONAL_FSTAB := true
 TW_USE_SERIALNO_PROPERTY_FOR_DEVICE_ID := true
 TW_BACKUP_EXCLUSIONS := /data/fonts,/data/adb/ksu,/data/adb/ap
-# Release numbers, counted separately for TWRP and YARP (PIANO_YARP=1).
-ifeq ($(PIANO_YARP),1)
+# Release numbers, one per recovery. Raise the one you release.
+ifeq ($(PIANO_FOX),1)
+FOX_MAINTAINER_PATCH_VERSION := 1
+TW_DEVICE_VERSION := $(FOX_MAINTAINER_PATCH_VERSION)(ALXP)
+else ifeq ($(PIANO_YARP),1)
 TW_DEVICE_VERSION := 0(ALXP)
 else
 TW_DEVICE_VERSION := 3(ALXP)
