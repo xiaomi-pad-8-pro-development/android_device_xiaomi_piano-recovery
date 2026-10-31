@@ -81,6 +81,7 @@ jobs:
             manifest=https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git branch=twrp-16.0
           fi
           [ "${{ matrix.recovery }}" = yarp ] && export PIANO_YARP=1
+          [ "${{ matrix.recovery }}" = orangefox ] && export PIANO_FOX=1
           (cd src && bash ../device-tree/tools/ci-sync.sh $manifest $branch)
           # The build needs only the checked-out files: drop the git objects.
           rm -rf src/.repo/project-objects src/.repo/projects

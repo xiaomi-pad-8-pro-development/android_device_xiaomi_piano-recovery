@@ -1,0 +1,33 @@
+From 886e3f215bd119989225d4abea6f1b7d8ddefa11 Mon Sep 17 00:00:00 2001
+From: MUHAMMAD ALIF DANIEL BIN MOHD HAIRUL HEZZELIN
+ <alifdaniel.personalspace@gmail.com>
+Date: Sat, 31 Oct 2026 05:38:42 +0000
+Subject: [PATCH] orangefox: Show the variant after the release number
+
+The release reads R12.0_1 and the variant only shows on its own line.
+When a variant is set, show it in brackets after the release number,
+as R12.0_1(ALXP), like the TWRP device version.
+---
+ orangefox.mk | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/orangefox.mk b/orangefox.mk
+index 5b024ee..48cb525 100644
+--- a/orangefox.mk
++++ b/orangefox.mk
+@@ -41,7 +41,11 @@ ifneq ($(FOX_MAINTAINER_PATCH_VERSION),)
+     endif
+     test_res :=
+     LOCAL_CFLAGS += -DFOX_MAINTAINER_PATCH_VERSION='"$(FOX_MAINTAINER_PATCH_VERSION)"'
+-    LOCAL_CFLAGS += -DFOX_BUILD='"$(FOX_INTERNAL_RELEASE)""_""$(FOX_MAINTAINER_PATCH_VERSION)"'
++    ifeq ($(FOX_VARIANT),)
++        LOCAL_CFLAGS += -DFOX_BUILD='"$(FOX_INTERNAL_RELEASE)""_""$(FOX_MAINTAINER_PATCH_VERSION)"'
++    else
++        LOCAL_CFLAGS += -DFOX_BUILD='"$(FOX_INTERNAL_RELEASE)""_""$(FOX_MAINTAINER_PATCH_VERSION)""($(FOX_VARIANT))"'
++    endif
+ else
+     LOCAL_CFLAGS += -DFOX_BUILD='"$(FOX_INTERNAL_RELEASE)"'
+ endif
+-- 
+2.43.0
+
