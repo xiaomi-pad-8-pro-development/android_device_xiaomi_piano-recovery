@@ -25,6 +25,9 @@ mkdir -p .repo/local_manifests
     echo '<manifest>'
     for p in $big; do echo "  <remove-project path=\"$p\" />"; done
     [ -n "$pin" ] && echo "  <extend-project name=\"android_bootable_recovery\" revision=\"$pin\" />"
+    # foxcli master needs libfox_protocol_types, which no fox_16.0 project
+    # provides yet (2026-10-31); stay on the last commit before it.
+    case "$1" in *OrangeFox*) echo "  <extend-project name=\"external/foxcli\" revision=\"288f5579\" />" ;; esac
     echo '</manifest>'
 } > .repo/local_manifests/ci-remove.xml
 repo sync -c -j4 --force-sync --no-clone-bundle --no-tags ||
