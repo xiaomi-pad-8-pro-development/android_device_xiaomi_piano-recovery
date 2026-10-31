@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MUHAMMAD ALIF DANIEL BIN MOHD HAIRUL HEZZELIN
+ <alifdaniel.personalspace@gmail.com>
+Date: Sat, 31 Oct 2026 17:36:49 +0800
+Subject: [PATCH] orangefox: Use the recovery servicemanager
+
+The system servicemanager reads the VINTF manifests of a full system,
+finds none in recovery and rejects every HAL, so Gatekeeper aborts and
+decryption never finishes. Ship servicemanager.recovery as TWRP does and
+start it, since its rc only declares the service.
+---
+ Android.mk          | 3 +--
+ etc/init.rc         | 3 +++
+ prebuilt/Android.mk | 1 -
+ 3 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/Android.mk b/Android.mk
+index 95a4b9c..617c131 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -613,8 +613,7 @@ TWRP_REQUIRED_MODULES += \
+     vndservicemanager \
+     vndservicemanager.rc \
+     plat_service_contexts \
+-    servicemanager \
+-    servicemanager.rc
++    servicemanager.recovery
+ 
+ ifneq ($(TW_INCLUDE_CRYPTO),)
+ TWRP_REQUIRED_MODULES += \
+diff --git a/etc/init.rc b/etc/init.rc
+index b9921d4..a7f2440 100644
+--- a/etc/init.rc
++++ b/etc/init.rc
+@@ -72,6 +72,9 @@ on init
+     symlink /dev/binderfs/hwbinder /dev/hwbinder
+     symlink /dev/binderfs/vndbinder /dev/vndbinder
+ 
++    # Start essential services
++    start servicemanager
++
+     # Create location for fs_mgr to store abbreviated output from filesystem
+     # checker programs.
+     mkdir /dev/fscklogs 0770 root system
+diff --git a/prebuilt/Android.mk b/prebuilt/Android.mk
+index e5c42b9..9abdef7 100644
+--- a/prebuilt/Android.mk
++++ b/prebuilt/Android.mk
+@@ -91,7 +91,6 @@ RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_EXECUTABLES)/keystore
+ RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_EXECUTABLES)/keystore_auth
+ RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_EXECUTABLES)/keystore_cli_v2
+ RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_SYSTEM_EXT_EXECUTABLES)/hwservicemanager
+-RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_EXECUTABLES)/servicemanager
+ RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_EXECUTABLES)/vold_prepare_subdirs
+ RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_VENDOR_EXECUTABLES)/vndservicemanager
+ RECOVERY_BINARY_SOURCE_FILES += $(TARGET_OUT_EXECUTABLES)/toybox
