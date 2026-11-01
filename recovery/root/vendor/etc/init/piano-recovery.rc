@@ -1,6 +1,8 @@
 # Recovery services for the Xiaomi Pad 8 Pro (piano). The binaries are the
 # stock HyperOS ones; variant-specific files are put in place by piano-setup.sh
-# before any of these start.
+# before any of these start. They run from /twrplib, which piano-stage.sh binds
+# to the ramdisk /vendor and /odm, so the recovery mounting the installed
+# partitions over /vendor and /odm never touches them.
 
 service piano.setup /system/bin/sh /system/bin/piano-setup.sh
     user root
@@ -9,96 +11,89 @@ service piano.setup /system/bin/sh /system/bin/piano-setup.sh
     oneshot
     seclabel u:r:recovery:s0
 
-service vendor.qseecomd /vendor/bin/qseecomd
+service vendor.qseecomd /twrplib/vendor/bin/qseecomd
     user root
     group root drmrpc
     socket notify-topology stream 660 system drmrpc
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    setenv LD_LIBRARY_PATH /twrplib/vendor/lib64:/twrplib/vendor/lib64/hw:/twrplib/odm/lib64:/system/lib64
     disabled
     seclabel u:r:recovery:s0
 
 # HLOS Mink opener. Weaver's GlobalPlatform client opens its trusted app
 # through it; without it the credential decrypt fails at the Weaver key size.
-service vendor.minkdaemon /vendor/bin/hlosminkdaemon
+service vendor.minkdaemon /twrplib/vendor/bin/hlosminkdaemon
     user system
     group system drmrpc
     socket hlos_mink_opener stream 0660 system drmrpc
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    setenv LD_LIBRARY_PATH /twrplib/vendor/lib64:/twrplib/vendor/lib64/hw:/twrplib/odm/lib64:/system/lib64
     disabled
     seclabel u:r:recovery:s0
 
-service vendor.ssgtzd /vendor/bin/ssgtzd
+service vendor.ssgtzd /twrplib/vendor/bin/ssgtzd
     user root
     group root system wakelock
     socket ssgtzd stream 0660 system system
     socket ssgtzd_opener stream 0660 system system
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    setenv LD_LIBRARY_PATH /twrplib/vendor/lib64:/twrplib/vendor/lib64/hw:/twrplib/odm/lib64:/system/lib64
     disabled
     seclabel u:r:recovery:s0
 
-service vendor.keymint-qti /vendor/bin/hw/android.hardware.security.keymint-service-qti
+service vendor.keymint-qti /twrplib/vendor/bin/hw/android.hardware.security.keymint-service-qti
     user root
     group root drmrpc
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    setenv LD_LIBRARY_PATH /twrplib/vendor/lib64:/twrplib/vendor/lib64/hw:/twrplib/odm/lib64:/system/lib64
     disabled
     seclabel u:r:recovery:s0
 
-service vendor.gatekeeper_default /vendor/bin/hw/android.hardware.gatekeeper-service-qti
+service vendor.gatekeeper_default /twrplib/vendor/bin/hw/android.hardware.gatekeeper-service-qti
     user root
     group root
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    setenv LD_LIBRARY_PATH /twrplib/vendor/lib64:/twrplib/vendor/lib64/hw:/twrplib/odm/lib64:/system/lib64
     disabled
     seclabel u:r:recovery:s0
 
-service odm.weaver /odm/bin/hw/android.hardware.weaver
+service odm.weaver /twrplib/odm/bin/hw/android.hardware.weaver
     user root
     group root system drmrpc
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    setenv LD_LIBRARY_PATH /twrplib/vendor/lib64:/twrplib/vendor/lib64/hw:/twrplib/odm/lib64:/system/lib64
     disabled
     seclabel u:r:recovery:s0
 
-service vendor.boot-qti /vendor/bin/hw/android.hardware.boot-service.qti
+service vendor.boot-qti /twrplib/vendor/bin/hw/android.hardware.boot-service.qti
     user root
     group root
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    setenv LD_LIBRARY_PATH /twrplib/vendor/lib64:/twrplib/vendor/lib64/hw:/twrplib/odm/lib64:/system/lib64
     disabled
     seclabel u:r:recovery:s0
 
-service vendor.batterysecret /vendor/bin/batterysecret
+service vendor.batterysecret /twrplib/vendor/bin/batterysecret
     user root
     group system wakelock
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    setenv LD_LIBRARY_PATH /twrplib/vendor/lib64:/twrplib/vendor/lib64/hw:/twrplib/odm/lib64:/system/lib64
     disabled
     seclabel u:r:recovery:s0
 
-on init
-    start vendor.boot-qti
-
 # Host touch processing: the panel sends raw frames that touch_report turns
-# into input events. The Novatek modules come from the installed vendor_boot.
-service vendor.touch_report /vendor/bin/touch_report
+# into input events. Its libraries open their models under /odm/firmware by
+# full path, so piano-setup.sh starts it once the recovery has released /odm.
+service vendor.touch_report /twrplib/vendor/bin/touch_report
     user root
     group root uhid input
     capabilities SYS_NICE
     ioprio rt 4
-    setenv LD_LIBRARY_PATH /vendor/lib64:/odm/lib64:/system/lib64
+    setenv LD_LIBRARY_PATH /twrplib/vendor/lib64:/twrplib/odm/lib64:/system/lib64
     disabled
     seclabel u:r:recovery:s0
 
-on post-fs
-    chmod 0755 /vendor/bin/touch_report
-    start vendor.touch_report
-
 # QWES, for the Weaver-backed synthetic password. It needs the
 # metadata-decrypted /data, so it starts once the userdata mapper exists.
-service vendor.qwesd /vendor/bin/qwesd
+service vendor.qwesd /twrplib/vendor/bin/qwesd
     user system
     group system inet
-    setenv LD_LIBRARY_PATH /vendor/lib64:/vendor/lib64/hw:/odm/lib64:/system/lib64
+    setenv LD_LIBRARY_PATH /twrplib/vendor/lib64:/twrplib/vendor/lib64/hw:/twrplib/odm/lib64:/system/lib64
     disabled
     seclabel u:r:recovery:s0
 
 on property:ro.crypto.fs_crypto_blkdev=*
     mkdir /data/vendor/qwes 0755 system system
-    chmod 0755 /vendor/bin/qwesd
     start vendor.qwesd

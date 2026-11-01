@@ -83,21 +83,20 @@ log_msg "using the ${variant} secure stack"
 grep -q " /mnt/vendor/persist " /proc/mounts ||
     mount -t ext4 -o noatime,nosuid,nodev /dev/block/bootdevice/by-name/persist /mnt/vendor/persist
 
-# OrangeFox briefly mounts the installed vendor and odm over /vendor and /odm
-# to read their properties; files put there in the meantime vanish when it
-# unmounts.
-i=0
-while grep -qE " /(vendor|odm) " /proc/mounts && [ "${i}" -lt 30 ]; do
-    sleep 1
-    i=$((i + 1))
-done
-# TWRP's /odm/bin and /odm/etc point into a /vendor/odm that does not exist.
-for d in bin etc; do
-    [ -L /odm/${d} ] && rm /odm/${d} && mkdir /odm/${d}
-done
-cp -a /variant/${variant}/. /
+# piano-stage.sh bound the ramdisk /vendor and /odm under /twrplib, where the
+# services run from; copy there, so files never land on an installed
+# partition the recovery has mounted over /vendor or /odm.
+cp -a /variant/${variant}/. /twrplib/
 # Prebuilt files in the recovery ramdisk can lose their executable bit.
-chmod 0755 /vendor/bin/* /vendor/bin/hw/* /odm/bin/hw/*
+chmod 0755 /twrplib/vendor/bin/* /twrplib/vendor/bin/hw/* /twrplib/odm/bin/hw/*
+
+# ssgtzd loads the trusted applications from /vendor/firmware_mnt. The
+# recovery unmounts it with /vendor when it releases the installed vendor.
+if [ ! -d /vendor/firmware_mnt/image ]; then
+    mount -t vfat -o ro,shortname=lower,uid=1000,gid=1000,dmask=227,fmask=337 \
+        /dev/block/bootdevice/by-name/modem${SLOT} /vendor/firmware_mnt ||
+        log_msg "cannot mount the modem image"
+fi
 
 set_prop ro.build.version.release \
     "$(read_prop "${MNT}/system/system/build.prop" ro.build.version.release)"
@@ -143,4 +142,5 @@ while ! logcat -d -s ssgtzd 2>/dev/null | grep -q "start_modem_opener_service is
 done
 start_service odm.weaver
 start_service vendor.batterysecret
+start_service vendor.touch_report
 setprop piano.setup.done 1
