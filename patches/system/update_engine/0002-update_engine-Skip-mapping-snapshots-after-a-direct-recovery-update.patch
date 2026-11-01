@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MUHAMMAD ALIF DANIEL BIN MOHD HAIRUL HEZZELIN
+ <alifdaniel.personalspace@gmail.com>
+Date: Mon, 2 Nov 2026 00:20:00 +0800
+Subject: [PATCH] update_engine: Skip mapping snapshots after a direct
+ recovery update
+
+When recovery cannot create the update snapshots it falls back to
+writing the target partitions directly. Postinstall in recovery still
+called MapAllSnapshots, which refuses with no update in progress, so the
+install failed with kPostInstallMountError after every partition had been
+written and verified. There is nothing to map in that case.
+---
+ aosp/dynamic_partition_control_android.cc | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/aosp/dynamic_partition_control_android.cc b/aosp/dynamic_partition_control_android.cc
+index aa8065e..f91d4c9 100644
+--- a/aosp/dynamic_partition_control_android.cc
++++ b/aosp/dynamic_partition_control_android.cc
+@@ -1536,8 +1536,9 @@ std::optional<base::FilePath> DynamicPartitionControlAndroid::GetSuperDevice() {
+ bool DynamicPartitionControlAndroid::MapAllPartitions() {
+   // This flag tells us if VAB is enabled. In the case it's not (e.g. for
+   // secondary payloads) we are falling back on A/B and MapAllPartitions should
+-  // just be a no-op
+-  if (!target_supports_snapshot_) {
++  // just be a no-op. The same holds when recovery could not create the
++  // snapshots and wrote the target partitions directly.
++  if (!target_supports_snapshot_ || recovery_fallback_to_direct_update_) {
+     return true;
+   }
+   return GetSnapshotManager()->MapAllSnapshots(kMapSnapshotTimeout);
+-- 
+2.47.0
+
