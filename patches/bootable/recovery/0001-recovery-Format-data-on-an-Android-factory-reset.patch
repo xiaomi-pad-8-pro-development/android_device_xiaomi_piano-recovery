@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MUHAMMAD ALIF DANIEL BIN MOHD HAIRUL HEZZELIN
+ <alifdaniel.personalspace@gmail.com>
+Date: Sun, 1 Nov 2026 19:30:00 +0800
+Subject: [PATCH] recovery: Format data on an Android factory reset
+
+Erase all data in Android settings reboots to recovery with --wipe_data.
+TWRP turned that into "wipe data", which keeps /data/media. Its files are
+still encrypted with the old user keys, so vold fails to set up the new
+user and the ROM loops back to recovery. Format data instead, as the stock
+recovery does.
+---
+ startup/startup_args.cpp | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/startup/startup_args.cpp b/startup/startup_args.cpp
+index 34cb650..ad6e321 100755
+--- a/startup/startup_args.cpp
++++ b/startup/startup_args.cpp
+@@ -87,7 +87,11 @@ bool StartupArgs::ProcessRecoveryArgs(const std::vector<std::string>& args, cons
+       send_intent_ = value;
+     }
+   } else if (arg.starts_with(kWipeData)) {
+-    if (!OpenRecoveryScript::Insert_ORS_Command("wipe data\n")) return false;
++    // A factory reset from Android must leave no user data behind, as the
++    // stock recovery does. Wiping data keeps /data/media, whose files are
++    // still encrypted with the old user keys, and vold then fails to set up
++    // the new user and the ROM loops back to recovery.
++    if (!OpenRecoveryScript::Insert_ORS_Command("format data\n")) return false;
+   } else if (arg.starts_with(kWipeCache)) {
+     if (!OpenRecoveryScript::Insert_ORS_Command("wipe cache\n")) return false;
+   } else if (arg.starts_with(kNandroid)) {
+-- 
+2.47.0
+
