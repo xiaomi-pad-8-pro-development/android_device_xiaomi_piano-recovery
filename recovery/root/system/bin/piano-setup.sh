@@ -130,7 +130,17 @@ fi
 # limited wait.
 start_service vendor.keymint-qti
 start_service vendor.gatekeeper_default
-start_service odm.weaver
+# ssgtzd loads the Weaver trusted app. Without a lock screen credential the
+# recovery reads the Weaver slot as soon as it starts; if Weaver opens its
+# session before the loader is up the app fails with 0xffff0007 and stays in
+# that state until the next reboot, so wait for ssgtzd first.
 start_service vendor.ssgtzd
+i=0
+while ! logcat -d -s ssgtzd 2>/dev/null | grep -q "start_modem_opener_service is completed" &&
+        [ "${i}" -lt 15 ]; do
+    sleep 1
+    i=$((i + 1))
+done
+start_service odm.weaver
 start_service vendor.batterysecret
 setprop piano.setup.done 1
