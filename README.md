@@ -1,12 +1,6 @@
 # Recovery for the Xiaomi Pad 8 Pro (piano)
 
-One tree for **TWRP**, **YARP** (TWRP 16 with the new GUI2) and **OrangeFox**.
-
-| Status | TWRP | YARP | OrangeFox |
-| --- | --- | --- | --- |
-| HyperOS 4 (Android 17), China | tested | boots, decrypts | untested |
-| HyperOS 3 (Android 16) | untested | untested | untested |
-| Global firmware | untested | untested | untested |
+One tree for **TWRP**, **YARP** (TWRP 16 with the new GUI2).
 
 Tested on HyperOS 4.0.5 with TWRP: touch, PIN decryption, firmware and
 ROM zips, charging, backups and settings that survive a reboot. AOSP ROMs
