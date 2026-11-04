@@ -26,7 +26,7 @@ Locally, in a `twrp-16.0` or `fox_16.0` source (`tools/ci-sync.sh` pins classic 
 git clone https://github.com/xiaomi-pad-8-pro-development/android_device_xiaomi_piano-recovery -b seventeen device/xiaomi/piano
 source build/envsetup.sh
 export ALLOW_MISSING_DEPENDENCIES=true
-export PIANO_FOX=1   # OrangeFox only
+export PIANO_YARP=1   # YARP only
 lunch twrp_piano-bp2a-eng
 m recoveryimage
 ```
