@@ -20,7 +20,7 @@ flowchart LR
 
 GitHub Actions: **Build recovery** → TWRP, YARP, OrangeFox or all three.
 
-Locally, in a `twrp-16.0` or `fox_16.0` source (`tools/ci-sync.sh` pins classic TWRP; set `PIANO_YARP=1` for YARP):
+Locally, in a `twrp-16.0` source (`tools/ci-sync.sh` pins classic TWRP; set `PIANO_YARP=1` for YARP):
 
 ```
 git clone https://github.com/xiaomi-pad-8-pro-development/android_device_xiaomi_piano-recovery -b seventeen device/xiaomi/piano
