@@ -2,7 +2,7 @@
 
 One tree for **TWRP**, **YARP** (TWRP 16 with the new GUI2).
 
-Tested on HyperOS 4.0.5 with TWRP: touch, PIN decryption, firmware and
+Tested on HyperOS 4 with TWRP: touch, PIN decryption, firmware and
 ROM zips, charging, backups and settings that survive a reboot. AOSP ROMs
 built on either firmware use the same secure stack as the firmware itself.
 
@@ -40,4 +40,4 @@ fastboot flash recovery_b recovery.img
 
 TWRP starts on US Central time; set yours once in Settings → Time zone.
 
-Stock files come from `OS4.0.5.0.XPYCNXM` and `OS3.0.307.0.WPYCNXM` via `tools/extract-files.py`.
+Stock files come from the HyperOS 4 and HyperOS 3 China firmware via `tools/extract-files.py`.
