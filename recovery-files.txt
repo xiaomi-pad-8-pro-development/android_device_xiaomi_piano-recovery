@@ -5,7 +5,7 @@
 #   hos3/             HyperOS 3 China OS3.0.307.0.WPYCNXM (Android 16)
 #
 # Plain lines go to recovery/root/<path>. Lines under a [hos3] or [hos4]
-# section go to recovery/root/variant/<section>/<path>; variant-script.sh copies
+# section go to recovery/root/variant/<section>/<path>; piano-setup.sh copies
 # the set matching the installed vendor over the common files at boot.
 
 # Secure world, KeyMint, Gatekeeper, boot control

@@ -79,7 +79,7 @@ else
     variant=hos4
 fi
 log_msg "using the ${variant} secure stack"
-# init cannot mount persist under the recovery policy; qseecomd needs it.
+# init mounts persist in on fs; mount it again if the recovery dropped it.
 grep -q " /mnt/vendor/persist " /proc/mounts ||
     mount -t ext4 -o noatime,nosuid,nodev /dev/block/bootdevice/by-name/persist /mnt/vendor/persist
 
