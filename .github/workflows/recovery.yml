@@ -97,6 +97,7 @@ jobs:
         run: |
           set +e
           cd src
+          [ "${{ matrix.recovery }}" = yarp ] && export PIANO_YARP=1
           [ "${{ matrix.recovery }}" = orangefox ] && export PIANO_FOX=1
           source build/envsetup.sh
           export ALLOW_MISSING_DEPENDENCIES=true
