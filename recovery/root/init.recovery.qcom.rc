@@ -5,17 +5,10 @@
 
 on init
     write /sys/class/backlight/panel0-backlight/brightness 2048
-    setprop sys.usb.configfs 1
     setprop vendor.gatekeeper.is_security_level_spu 0
     # The ADSP firmware is loaded from the modem image. The touch firmware is
     # in /lib/firmware, which the kernel searches from first stage on.
     write /sys/module/firmware_class/parameters/path /vendor/firmware_mnt/image
-
-on property:ro.boot.usbcontroller=*
-    setprop sys.usb.controller ${ro.boot.usbcontroller}
-    wait /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode
-    write /sys/bus/platform/devices/${ro.boot.usb.dwc3_msm:-a600000.ssusb}/mode peripheral
-    wait /sys/class/udc/${ro.boot.usbcontroller} 1
 
 on fs
     wait /dev/block/platform/soc/1d84000.ufshc 5
