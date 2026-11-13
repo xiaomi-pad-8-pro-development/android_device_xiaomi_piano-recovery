@@ -10,7 +10,7 @@ set -euo pipefail
 repo init -u "$1" -b "$2" --depth=1
 # A rerun must read the full manifest, not the one with our removals.
 rm -f .repo/local_manifests/ci-remove.xml
-repo manifest -o /tmp/full.xml
+repo manifest -o .repo/ci-full.xml
 
 big="prebuilts/clang/host/linux-x86 prebuilts/rust"
 # OrangeFox points these at GitLab repositories that no longer exist; the
@@ -37,7 +37,7 @@ repo sync -c -j4 --force-sync --no-clone-bundle --no-tags ||
 project() {
     python3 - "$1" <<'PY'
 import sys, xml.etree.ElementTree as ET
-m = ET.parse("/tmp/full.xml").getroot()
+m = ET.parse(".repo/ci-full.xml").getroot()
 remotes = {r.get("name"): r.get("fetch") for r in m.iter("remote")}
 default = m.find("default")
 for p in m.iter("project"):
