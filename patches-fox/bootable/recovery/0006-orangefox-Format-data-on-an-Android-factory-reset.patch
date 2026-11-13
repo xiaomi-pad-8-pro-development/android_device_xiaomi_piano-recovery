@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MUHAMMAD ALIF DANIEL BIN MOHD HAIRUL HEZZELIN
+ <alifdaniel.personalspace@gmail.com>
+Date: Fri, 13 Nov 2026 15:40:41 +0800
+Subject: [PATCH] orangefox: Format data on an Android factory reset
+
+Erase all data in Android settings reboots to recovery with --wipe_data.
+OrangeFox turns that into "wipe data" unless the device is virtual A/B,
+which keeps /data/media. Its files are still encrypted with the old user
+keys, so vold fails to set up the new user and the ROM loops back to
+recovery. Format data instead, as the stock recovery does, and skip the
+decrypt prompt that could only fail with a wrong credential.
+---
+ startupArgs.cpp | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/startupArgs.cpp b/startupArgs.cpp
+index 2bf5f2f2..87dcfe47 100755
+--- a/startupArgs.cpp
++++ b/startupArgs.cpp
+@@ -74,13 +74,13 @@ bool startupArgs::processRecoveryArgs(std::vector<std::string> args, int index)
+ 				Send_Intent = arg;
+ 			}
+ 		} else if (args[index].find(WIPE_DATA) != std::string::npos) {
+-		    #ifdef OF_VAB_ORS_WIPE_DATA_IS_FORMAT
++			// Piano uses metadata encryption with FBE: a plain wipe keeps
++			// /data/media, whose old user keys make vold fail init_user0.
++			// Android has already dropped those keys, so do not ask for the
++			// lock screen credential first.
++			SkipDecryption = true;
+ 			LOGINFO("Received OpenRecovery 'wipe data' command; converting to 'format data'\n");
+ 			if (!OpenRecoveryScript::Insert_ORS_Command("format data\n"))
+-		    #else
+-			LOGINFO("Received OpenRecovery 'wipe data' command.\n");
+-			if (!OpenRecoveryScript::Insert_ORS_Command("wipe data\n"))
+-		    #endif
+ 				return false;
+ 		} else if (args[index].find(WIPE_CACHE) != std::string::npos) {
+ 			if (!OpenRecoveryScript::Insert_ORS_Command("wipe cache\n"))
