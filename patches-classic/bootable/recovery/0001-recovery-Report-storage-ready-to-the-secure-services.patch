@@ -1,0 +1,35 @@
+From: MUHAMMAD ALIF DANIEL BIN MOHD HAIRUL HEZZELIN <alifdaniel.personalspace@gmail.com>
+Subject: [PATCH] recovery: Report storage ready to the secure services
+
+The device starts qseecomd, KeyMint, Gatekeeper and Weaver once
+twrp.storage.ready is set, which YARP does and classic TWRP never did,
+so /data stayed encrypted. ProcessFstab already decrypts the metadata
+partition, so set it before that and wait for KeyMint to start.
+---
+diff --git a/twrp.cpp b/twrp.cpp
+index fe54b2b..501ea3b 100644
+--- a/twrp.cpp
++++ b/twrp.cpp
+@@ -385,6 +385,14 @@ int main(int argc, char* argv[]) {
+   printf("=> Linking mtab\n");
+   symlink("/proc/mounts", "/etc/mtab");
+ 
++  // The secure services (qseecomd, KeyMint, Gatekeeper, Weaver) start on
++  // this property. ProcessFstab already decrypts the metadata partition, so
++  // start them first and give KeyMint time to come up. In fastbootd mode
++  // they wait until fastboot has unmapped the logical partitions.
++  if (!startup.GetFastbootMode()) {
++    android::base::SetProperty("twrp.storage.ready", "1");
++    android::base::WaitForProperty("init.svc.vendor.keymint-qti", "running", std::chrono::seconds(20));
++  }
+   printf("=> Processing Fstab\n");
+   if (!PartitionManager.ProcessFstab("/etc/recovery.fstab", true, !startup.GetFastbootMode())) {
+     LOGERR("Failing out of recovery due to problem with fstab.\n");
+@@ -421,6 +429,7 @@ int main(int argc, char* argv[]) {
+   std::thread(MonitorBattery).detach();
+ 
+   TWFunc::ClearBootloaderMessage();
++  android::base::SetProperty("twrp.storage.ready", "1");
+ 
+   if (startup.GetFastbootMode()) {
+     ProcessFastbootdMode();

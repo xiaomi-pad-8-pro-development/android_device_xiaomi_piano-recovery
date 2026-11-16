@@ -4,13 +4,15 @@
 # patches/<project path>/*.patch apply to every build; patches-twrp/ to
 # TWRP and YARP, whose bootable/recovery OrangeFox replaces; patches-yarp/
 # only to YARP (PIANO_YARP=1), whose GUI2 code classic TWRP does not have,
-# and patches-fox/ only to OrangeFox (PIANO_FOX=1).
+# patches-classic/ only to classic TWRP (YARP already has them), and
+# patches-fox/ only to OrangeFox (PIANO_FOX=1).
 # Patches that are already applied are skipped, so a rerun is harmless.
 set -eo pipefail
 tree=$(cd "$(dirname "$0")/.." && pwd)
 dirs="$tree/patches"
 [ -z "${PIANO_FOX:-}" ] && dirs="$dirs $tree/patches-twrp"
 [ -n "${PIANO_YARP:-}" ] && dirs="$dirs $tree/patches-yarp"
+[ -z "${PIANO_FOX:-}${PIANO_YARP:-}" ] && dirs="$dirs $tree/patches-classic"
 [ -n "${PIANO_FOX:-}" ] && dirs="$dirs $tree/patches-fox"
 for patches in $dirs; do
     find "$patches" -name '*.patch' | sort | while read -r f; do
