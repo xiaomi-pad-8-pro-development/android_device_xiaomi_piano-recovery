@@ -13,20 +13,20 @@ classic TWRP version string does.
  2 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/gui2/Android.bp b/gui2/Android.bp
-index 58cb5695..26aae5fc 100644
+index cd03430..79fdfe6 100644
 --- a/gui2/Android.bp
 +++ b/gui2/Android.bp
 @@ -27,7 +27,7 @@ genrule {
  cc_library_shared {
      name: "libgui2",
      recovery: true,
--    defaults: ["twrp_defaults"],
-+    defaults: ["twrp_defaults", "twrp_cflags_defaults"],
-     required: ["gui2_fonts"],
+-    defaults: ["twrp_defaults", "gui2_resources_defaults"],
++    defaults: ["twrp_defaults", "gui2_resources_defaults", "twrp_cflags_defaults"],
      cflags: [
          "-DLV_CONF_INCLUDE_SIMPLE",
+         "-DLV_LVGL_H_INCLUDE_SIMPLE",
 diff --git a/gui2/shell/page_scaffold.cpp b/gui2/shell/page_scaffold.cpp
-index 55710f88..0fd6f547 100644
+index 55710f8..0fd6f54 100644
 --- a/gui2/shell/page_scaffold.cpp
 +++ b/gui2/shell/page_scaffold.cpp
 @@ -8,7 +8,8 @@ namespace gui2_shell {
